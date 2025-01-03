@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreResidentRequest;
-use App\Http\Requests\UpdateResidentRequest;
 use App\Models\Resident;
 use App\Utils\CommonResponse;
-use Error;
-use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Illuminate\Http\Response;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Validator;
 
-class ResidentController
+class ResidentController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -19,28 +17,39 @@ class ResidentController
     {
         $residents = Resident::paginate(8);
         return CommonResponse::commonResponse(
-            200,
+            Response::HTTP_OK,
             'Success',
             ['data' => $residents]
         );
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        throw new NotFoundHttpException();
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreResidentRequest $request)
+    public function store()
     {
-        $identityCardImageUrl = $request->file('identity_card_image')->store('identity_cards', 'public');
-        $data = json_decode($request->data);
+        $validated = Validator::make(request()->all(), [
+            'data.*.house_id' => 'required|string',
+            'data.*.fullname' => 'required|string',
+            'data.*.is_permanent_resident' => 'required|boolean',
+            'data.*.phone_number' => 'required|min:10',
+            'data.*.is_married' => 'required|boolean',
+            'identity_card_image' => 'required|image:jpg,png|max:2048',
+        ]);
+        
+        if ($validated->fails()) {
+            return CommonResponse::commonResponse(
+                Response::HTTP_BAD_REQUEST,
+                'Error',
+                ['error' => $validated->errors()]
+            );
+        }
+
+
+        $identityCardImageUrl = request()->file('identity_card_image')->store('identity_cards', 'public');
+        $data = json_decode(request('data'));
         $resident = [
+            'house_id' => $data->house_id,
             'fullname' => $data->fullname,
             'indentity_card_url' => $identityCardImageUrl,
             'is_permanent_resident' => $data->is_permanent_resident,
@@ -63,47 +72,56 @@ class ResidentController
         $resident = Resident::find($id);
         if ($resident == null) {
             return CommonResponse::commonResponse(
-                404,
+                Response::HTTP_NOT_FOUND,
                 'Error',
                 ['message' => 'Resident not found']
             );
         }
         return CommonResponse::commonResponse(
-            200,
+            Response::HTTP_OK,
             'Success',
             ['data' => $resident]
         );
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Resident $resident)
-    {
-        throw new NotFoundHttpException();
-    }
-
-    /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateResidentRequest $request, string $id)
+    public function update(string $id)
     {
-        return $request;
+        $validated = Validator::make(request()->all(), [
+            'data.*.house_id' => 'required|string',
+            'data.*.fullname' => 'required|string',
+            'data.*.is_permanent_resident' => 'required|boolean',
+            'data.*.phone_number' => 'required|min:10',
+            'data.*.is_married' => 'required|boolean',
+            'identity_card_image' => 'required|image:jpg,png|max:2048',
+        ]);
+        
+        if ($validated->fails()) {
+            return CommonResponse::commonResponse(
+                Response::HTTP_BAD_REQUEST,
+                'Error',
+                ['error' => $validated->errors()]
+            );
+        }
+        
         $resident = Resident::find($id);
         if ($resident == null) {
             return CommonResponse::commonResponse(
-                404,
+                Response::HTTP_NOT_FOUND,
                 'Error',
                 ['message' => 'Resident not found']
             );
         }
+        
         unlink(storage_path('app/public/' . $resident->indentity_card_url));
-        $identityCardImageUrl = $request->file('identity_card_image')->store('identity_cards', 'public');
+        $identityCardImageUrl = request()->file('identity_card_image')->store('identity_cards', 'public');
 
-        $data = json_decode($request->data);
+        $data = json_decode(request('data'));
+        $resident->house_id = $data->house_id;
         $resident->fullname = $data->fullname;
-        $resident->indentity_card_url = $data->fullname;
-        $resident->fullname = $identityCardImageUrl;
+        $resident->indentity_card_url = $identityCardImageUrl;
         $resident->is_permanent_resident = $data->is_permanent_resident;
         $resident->phone_number = $data->phone_number;
         $resident->is_married = $data->is_married;
@@ -113,28 +131,6 @@ class ResidentController
             200,
             'Updated',
             ['data' => $resident]
-        );
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        $resident = Resident::find($id);
-        if ($resident == null) {
-            return CommonResponse::commonResponse(
-                404,
-                'Error',
-                ['message' => 'Resident not found']
-            );
-        }
-        unlink(storage_path('app/public/' . $resident->indentity_card_url));
-        $resident->delete();
-        return CommonResponse::commonResponse(
-            200,
-            'Success',
-            ['data' => 'Resident deleted']
         );
     }
 }

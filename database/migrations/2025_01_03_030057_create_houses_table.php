@@ -13,14 +13,12 @@ return new class extends Migration
     {
         Schema::create('houses', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('resident_id')->nullable();
             $table->uuid('subs_id')->nullable();
             $table->string('house_code');
             $table->boolean('is_occupied');
             $table->timestamps();
 
             // relations
-            $table->foreign('resident_id')->references('id')->on('residents');
             $table->foreign('subs_id')->references('id')->on('subcriptions');
         });
     }

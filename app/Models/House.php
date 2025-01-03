@@ -12,15 +12,10 @@ class House extends Model
     use HasFactory, HasUuids;
 
     protected $fillable = [
-        'resident_id',
+        'subs_id',
         'house_code',
-        'is_occupied'
+        'is_occupied',
     ];
-
-    public function residents()
-    {
-        return $this->hasMany(Resident::class);
-    }
 
     public function subcriptions(){
         return $this->hasMany(Subcription::class);

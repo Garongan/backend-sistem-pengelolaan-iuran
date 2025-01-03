@@ -2,31 +2,42 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\AuthRequest;
 use App\Utils\CommonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    public function login(AuthRequest $request)
+    public function login()
     {
-        $credentials = [
-            'email' => $request->email,
-            'password' => $request->password
-        ];
+        $validated = Validator::make(request()->all(), [
+            'email' => 'required|email',
+            'password' => 'required|string|min:8'
+        ]);
 
-        if (! $token = Auth::attempt($credentials)) {
-            return CommonResponse::commonResponse(401, 'Error', ['message' => 'Unauthorized']);
+        if ($validated->fails()) {
+            return CommonResponse::commonResponse(
+                Response::HTTP_BAD_REQUEST,
+                'Error',
+                ['error' => $validated->errors()]
+            );
         }
 
-        return $this->respondWithToken(200, $token);
+        $credentials = request(['email', 'password']);
+
+        if (! $token = Auth::attempt($credentials)) {
+            return CommonResponse::commonResponse(Response::HTTP_UNAUTHORIZED, 'Error', ['message' => 'Unauthorized']);
+        }
+
+        return $this->respondWithToken(Response::HTTP_OK, $token);
     }
 
     public function logout()
     {
         Auth::logout();
-        return CommonResponse::commonResponse(200, 'Success', ['message' => 'Logout successfull']);
+        return CommonResponse::commonResponse(Response::HTTP_OK, 'Success', ['message' => 'Logout successfull']);
     }
 
     protected function respondWithToken($statusCode, $token)

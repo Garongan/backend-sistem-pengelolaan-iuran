@@ -12,6 +12,7 @@ class Resident extends Model
     use HasFactory, HasUuids;
 
     protected $fillable = [
+        'house_id',
         'fullname',
         'indentity_card_url',
         'is_permanent_resident',
@@ -21,6 +22,6 @@ class Resident extends Model
 
     public function house()
     {
-        return $this->belongsTo(House::class);
+        return $this->hasOne(House::class);
     }
 }

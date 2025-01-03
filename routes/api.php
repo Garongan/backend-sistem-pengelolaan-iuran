@@ -3,6 +3,7 @@
 // No middleware
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\HouseController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\ResidentController;
 use App\Http\Controllers\UserController;
@@ -25,8 +26,21 @@ Route::middleware('auth:api')->group(function () {
         Route::get('', [UserController::class, 'index']);
     });
 
+    // houses
+    Route::prefix('houses')->group(function () {
+        Route::get('', [HouseController::class, 'index']);
+        Route::post('', [HouseController::class, 'store']);
+        Route::get('{id}', [HouseController::class, 'show']);
+        Route::put('{id}', [HouseController::class, 'update']);
+    });
+
     // residents
-    Route::resource('residents', ResidentController::class);
+    Route::prefix('residents')->group(function () {
+        Route::get('', [ResidentController::class, 'index']);
+        Route::post('', [ResidentController::class, 'store']);
+        Route::get('{id}', [ResidentController::class, 'show']);
+        Route::put('{id}', [ResidentController::class, 'update']);
+    });
 
     // images
     Route::get('images', [ImageController::class, 'show']);
