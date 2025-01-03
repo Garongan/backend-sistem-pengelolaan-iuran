@@ -11,13 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('subscriptions', function (Blueprint $table) {
+        Schema::create('houses', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('resident_id');
+            $table->uuid('resident_id')->nullable();
+            $table->uuid('subs_id')->nullable();
+            $table->string('house_code');
+            $table->boolean('is_occupied');
             $table->timestamps();
 
             // relations
             $table->foreign('resident_id')->references('id')->on('residents');
+            $table->foreign('subs_id')->references('id')->on('subcriptions');
         });
     }
 
@@ -26,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('subscriptions');
+        Schema::dropIfExists('houses');
     }
 };

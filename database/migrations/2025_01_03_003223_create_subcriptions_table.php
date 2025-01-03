@@ -11,15 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('houses', function (Blueprint $table) {
+        Schema::create('subcriptions', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('resident_id')->nullable();
-            $table->string('house_code');
-            $table->boolean('is_occupied');
+            $table->enum('type', ['security', 'sanitation']);
+            $table->decimal('amount');
+            $table->integer('period');
+            $table->boolean('is_paid_off');
             $table->timestamps();
-
-            // relations
-            $table->foreign('resident_id')->references('id')->on('residents');
         });
     }
 
@@ -28,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('houses');
+        Schema::dropIfExists('subcriptions');
     }
 };

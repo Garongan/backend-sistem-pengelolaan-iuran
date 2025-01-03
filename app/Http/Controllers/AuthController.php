@@ -2,25 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AuthRequest;
 use App\Utils\CommonResponse;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    public function login()
+    public function login(AuthRequest $request)
     {
-        $validators = Validator::make(request(['email', 'password']), [
-            'email' => ['required', 'email'],
-            'password' => ['required', 'string', 'min:8']
-        ]);
-
-        if ($validators->fails()) {
-            return CommonResponse::commonResponse(401, 'Error', ['message' => $validators->errors()]);
-        }
-
-        $credentials = request(['email', 'password']);
+        $credentials = [
+            'email' => $request->email,
+            'password' => $request->password
+        ];
 
         if (! $token = Auth::attempt($credentials)) {
             return CommonResponse::commonResponse(401, 'Error', ['message' => 'Unauthorized']);
