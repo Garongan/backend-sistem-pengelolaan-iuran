@@ -45,7 +45,7 @@ class UserFactory extends Factory
     public function admin()
     {
         return $this->state(fn(array $attributes) => [
-            'name' => env('ADMIN_NAME'),
+            'name' => env('ADMIN_FULLNAME'),
             'email' => env('ADMIN_EMAIL'),
             'password' => Hash::make(env('ADMIN_PASSWORD'))
         ]);

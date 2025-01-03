@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\House;
 use App\Models\Resident;
 use App\Utils\CommonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
 
-class ResidentController extends Controller
+class ResidentController
 {
     /**
      * Display a listing of the resource.
@@ -29,14 +30,13 @@ class ResidentController extends Controller
     public function store()
     {
         $validated = Validator::make(request()->all(), [
-            'data.*.house_id' => 'required|string',
             'data.*.fullname' => 'required|string',
             'data.*.is_permanent_resident' => 'required|boolean',
             'data.*.phone_number' => 'required|min:10',
             'data.*.is_married' => 'required|boolean',
             'identity_card_image' => 'required|image:jpg,png|max:2048',
         ]);
-        
+
         if ($validated->fails()) {
             return CommonResponse::commonResponse(
                 Response::HTTP_BAD_REQUEST,
@@ -45,11 +45,10 @@ class ResidentController extends Controller
             );
         }
 
-
-        $identityCardImageUrl = request()->file('identity_card_image')->store('identity_cards', 'public');
         $data = json_decode(request('data'));
+        $identityCardImageUrl = request()->file('identity_card_image')->store('identity_cards', 'public');
+
         $resident = [
-            'house_id' => $data->house_id,
             'fullname' => $data->fullname,
             'indentity_card_url' => $identityCardImageUrl,
             'is_permanent_resident' => $data->is_permanent_resident,
@@ -57,10 +56,11 @@ class ResidentController extends Controller
             'is_married' => $data->is_married
         ];
 
+        $response = Resident::create($resident);
         return CommonResponse::commonResponse(
             201,
             'Created',
-            ['data' => Resident::create($resident)]
+            ['data' => $response]
         );
     }
 
@@ -90,14 +90,13 @@ class ResidentController extends Controller
     public function update(string $id)
     {
         $validated = Validator::make(request()->all(), [
-            'data.*.house_id' => 'required|string',
-            'data.*.fullname' => 'required|string',
-            'data.*.is_permanent_resident' => 'required|boolean',
-            'data.*.phone_number' => 'required|min:10',
-            'data.*.is_married' => 'required|boolean',
-            'identity_card_image' => 'required|image:jpg,png|max:2048',
+            'data.*.fullname' => 'nullable|string',
+            'data.*.is_permanent_resident' => 'nullable|boolean',
+            'data.*.phone_number' => 'nullable|min:10',
+            'data.*.is_married' => 'nullable|boolean',
+            'identity_card_image' => 'nullable|image:jpg,png|max:2048',
         ]);
-        
+
         if ($validated->fails()) {
             return CommonResponse::commonResponse(
                 Response::HTTP_BAD_REQUEST,
@@ -105,7 +104,7 @@ class ResidentController extends Controller
                 ['error' => $validated->errors()]
             );
         }
-        
+
         $resident = Resident::find($id);
         if ($resident == null) {
             return CommonResponse::commonResponse(
@@ -114,12 +113,10 @@ class ResidentController extends Controller
                 ['message' => 'Resident not found']
             );
         }
-        
-        unlink(storage_path('app/public/' . $resident->indentity_card_url));
-        $identityCardImageUrl = request()->file('identity_card_image')->store('identity_cards', 'public');
 
+        $identityCardImageUrl = request()->file('identity_card_image')->store('identity_cards', 'public');
         $data = json_decode(request('data'));
-        $resident->house_id = $data->house_id;
+
         $resident->fullname = $data->fullname;
         $resident->indentity_card_url = $identityCardImageUrl;
         $resident->is_permanent_resident = $data->is_permanent_resident;
@@ -127,6 +124,7 @@ class ResidentController extends Controller
         $resident->is_married = $data->is_married;
         $resident->save();
 
+        unlink(storage_path('app/public/' . $resident->indentity_card_url));
         return CommonResponse::commonResponse(
             200,
             'Updated',

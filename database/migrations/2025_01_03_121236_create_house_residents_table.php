@@ -11,15 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('houses', function (Blueprint $table) {
+        Schema::create('house_residents', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('subs_id')->nullable();
-            $table->string('house_code');
-            $table->boolean('is_occupied');
+            $table->foreignUuid('house_id')->constrained();
+            $table->foreignUuid('resident_id')->constrained();
+            $table->dateTime('start_date');
+            $table->dateTime('end_date')->nullable();
             $table->timestamps();
-
-            // relations
-            $table->foreign('subs_id')->references('id')->on('subcriptions');
         });
     }
 
@@ -28,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('houses');
+        Schema::dropIfExists('house_residents');
     }
 };

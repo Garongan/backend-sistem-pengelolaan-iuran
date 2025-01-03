@@ -4,11 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Utils\CommonResponse;
 use Illuminate\Http\Response;
-use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
-class AuthController extends Controller
+class AuthController
 {
     public function login()
     {

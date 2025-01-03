@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('subcriptions', function (Blueprint $table) {
+        Schema::create('expenses', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->enum('type', ['security', 'sanitation']);
+            $table->string('description');
             $table->decimal('amount');
-            $table->integer('period');
-            $table->boolean('is_paid_off');
+            $table->dateTime('date');
             $table->timestamps();
         });
     }
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('subcriptions');
+        Schema::dropIfExists('expenses');
     }
 };

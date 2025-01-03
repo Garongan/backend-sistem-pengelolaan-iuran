@@ -3,16 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Resident extends Model
 {
-    /** @use HasFactory<\Database\Factories\ResidentFactory> */
-    use HasFactory, HasUuids;
+    use HasUuids;
 
     protected $fillable = [
-        'house_id',
         'fullname',
         'indentity_card_url',
         'is_permanent_resident',
@@ -20,8 +17,21 @@ class Resident extends Model
         'is_married'
     ];
 
-    public function house()
+    protected function casts(): array
     {
-        return $this->hasOne(House::class);
+        return [
+            'is_permanent_resident' => 'boolean',
+            'is_married' => 'boolean',
+        ];
+    }
+
+    public function houseResidents()
+    {
+        return $this->hasMany(HouseResident::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
     }
 }

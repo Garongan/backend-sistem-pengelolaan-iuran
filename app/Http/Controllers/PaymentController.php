@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreSubcriptionRequest;
-use App\Http\Requests\UpdateSubcriptionRequest;
-use App\Models\Subcription;
+use App\Models\Payment;
+use App\Http\Requests\StorePaymentRequest;
+use App\Http\Requests\UpdatePaymentRequest;
 
-class SubcriptionController
+class PaymentController
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +27,7 @@ class SubcriptionController
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreSubcriptionRequest $request)
+    public function store(StorePaymentRequest $request)
     {
         //
     }
@@ -35,7 +35,7 @@ class SubcriptionController
     /**
      * Display the specified resource.
      */
-    public function show(Subcription $subcription)
+    public function show(Payment $payment)
     {
         //
     }
@@ -43,7 +43,7 @@ class SubcriptionController
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Subcription $subcription)
+    public function edit(Payment $payment)
     {
         //
     }
@@ -51,7 +51,7 @@ class SubcriptionController
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateSubcriptionRequest $request, Subcription $subcription)
+    public function update(UpdatePaymentRequest $request, Payment $payment)
     {
         //
     }
@@ -59,7 +59,7 @@ class SubcriptionController
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Subcription $subcription)
+    public function destroy(Payment $payment)
     {
         //
     }
