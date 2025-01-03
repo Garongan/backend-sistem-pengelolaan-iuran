@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Payment;
-use App\Http\Requests\StorePaymentRequest;
-use App\Http\Requests\UpdatePaymentRequest;
+use App\Utils\CommonResponse;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
 
 class PaymentController
 {
@@ -13,54 +14,129 @@ class PaymentController
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $payments = Payment::with('resident')->paginate(8);
+        return CommonResponse::commonResponse(
+            Response::HTTP_OK,
+            'Success',
+            ['data' => $payments]
+        );
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorePaymentRequest $request)
+    public function store()
     {
-        //
+        $validated = Validator::make(request()->all(), [
+            'resident_id' => 'required|string',
+            'payment_type' => 'required|in:sanitation,security',
+            'amount' => 'required|numeric',
+            'period' => 'required|date',
+            'is_paid_off' => 'required|boolean'
+        ]);
+
+        if ($validated->fails()) {
+            return CommonResponse::commonResponse(
+                Response::HTTP_BAD_REQUEST,
+                'Error',
+                ['error' => $validated->errors()]
+            );
+        }
+
+        $payment = [
+            'resident_id' => request('resident_id'),
+            'payment_type' => request('payment_type'),
+            'amount' => request('amount'),
+            'period' => request('period'),
+            'is_paid_off' => request('is_paid_off')
+        ];
+
+        return CommonResponse::commonResponse(
+            Response::HTTP_CREATED,
+            'Success',
+            ['data' => Payment::create($payment)]
+        );
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Payment $payment)
+    public function show(string $id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Payment $payment)
-    {
-        //
+        $payment = Payment::with('resident')->find($id);
+        if ($payment == null) {
+            return CommonResponse::commonResponse(
+                Response::HTTP_NOT_FOUND,
+                'Error',
+                ['error' => 'Payment not found']
+            );
+        }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePaymentRequest $request, Payment $payment)
+    public function update(string $id)
     {
-        //
+        $payment = Payment::find($id);
+        if ($payment == null) {
+            return CommonResponse::commonResponse(
+                Response::HTTP_NOT_FOUND,
+                'Error',
+                ['error' => 'Payment not found']
+            );
+        }
+
+        $validated = Validator::make(request()->all(), [
+            'payment_type' => 'in:sanitation,security',
+            'amount' => 'numeric',
+            'period' => 'date',
+            'is_paid_off' => 'boolean'
+        ]);
+
+        if ($validated->fails()) {
+            return CommonResponse::commonResponse(
+                Response::HTTP_BAD_REQUEST,
+                'Error',
+                ['error' => $validated->errors()]
+            );
+        }
+
+        $updatedPayment = [
+            'resident_id' => request('resident_id'),
+            'payment_type' => request('payment_type'),
+            'amount' => request('amount'),
+            'period' => request('period'),
+            'is_paid_off' => request('is_paid_off')
+        ];
+
+        $payment->update($updatedPayment);
+        return CommonResponse::commonResponse(
+            Response::HTTP_OK,
+            'Success',
+            ['data' => $payment]
+        );
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Payment $payment)
+    public function destroy(string $id)
     {
-        //
+        $payment = Payment::find($id);
+        if ($payment == null) {
+            return CommonResponse::commonResponse(
+                Response::HTTP_NOT_FOUND,
+                'Error',
+                ['error' => 'Payment not found']
+            );
+        }
+
+        $payment->delete();
+        return CommonResponse::commonResponse(
+            Response::HTTP_OK,
+            'Success',
+            ['data' => null]
+        );
     }
 }

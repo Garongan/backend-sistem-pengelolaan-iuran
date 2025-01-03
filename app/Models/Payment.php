@@ -17,6 +17,13 @@ class Payment extends Model
         'is_paid_off'
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'is_paid_off' => 'boolean',
+        ];
+    }
+
     public function resident()
     {
         return $this->belongsTo(Resident::class);

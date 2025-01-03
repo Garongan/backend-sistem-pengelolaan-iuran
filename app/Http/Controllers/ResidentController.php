@@ -74,9 +74,10 @@ class ResidentController
             return CommonResponse::commonResponse(
                 Response::HTTP_NOT_FOUND,
                 'Error',
-                ['message' => 'Resident not found']
+                ['error' => 'Resident not found']
             );
         }
+
         return CommonResponse::commonResponse(
             Response::HTTP_OK,
             'Success',
@@ -90,11 +91,11 @@ class ResidentController
     public function update(string $id)
     {
         $validated = Validator::make(request()->all(), [
-            'data.*.fullname' => 'nullable|string',
-            'data.*.is_permanent_resident' => 'nullable|boolean',
-            'data.*.phone_number' => 'nullable|min:10',
-            'data.*.is_married' => 'nullable|boolean',
-            'identity_card_image' => 'nullable|image:jpg,png|max:2048',
+            'data.*.fullname' => 'string',
+            'data.*.is_permanent_resident' => 'boolean',
+            'data.*.phone_number' => 'min:10',
+            'data.*.is_married' => 'boolean',
+            'identity_card_image' => 'image:jpg,png|max:2048',
         ]);
 
         if ($validated->fails()) {
@@ -110,25 +111,47 @@ class ResidentController
             return CommonResponse::commonResponse(
                 Response::HTTP_NOT_FOUND,
                 'Error',
-                ['message' => 'Resident not found']
+                ['error' => 'Resident not found']
             );
         }
 
         $identityCardImageUrl = request()->file('identity_card_image')->store('identity_cards', 'public');
         $data = json_decode(request('data'));
 
-        $resident->fullname = $data->fullname;
-        $resident->indentity_card_url = $identityCardImageUrl;
-        $resident->is_permanent_resident = $data->is_permanent_resident;
-        $resident->phone_number = $data->phone_number;
-        $resident->is_married = $data->is_married;
-        $resident->save();
+        $updatedResident = [
+            'fullname' => $data->fullname,
+            'indentity_card_url' => $identityCardImageUrl,
+            'is_permanent_resident' => $data->is_permanent_resident,
+            'phone_number' => $data->phone_number,
+            'is_married' => $data->is_married
+        ];
 
+        $resident->update($updatedResident);
         unlink(storage_path('app/public/' . $resident->indentity_card_url));
         return CommonResponse::commonResponse(
             200,
             'Updated',
             ['data' => $resident]
+        );
+    }
+
+    public function destroy(string $id)
+    {
+        $resident = Resident::find($id);
+        if ($resident == null) {
+            return CommonResponse::commonResponse(
+                Response::HTTP_NOT_FOUND,
+                'Error',
+                ['error' => 'Resident not found']
+            );
+        }
+
+        $resident->delete();
+
+        return CommonResponse::commonResponse(
+            Response::HTTP_OK,
+            'Success',
+            ['data' => null]
         );
     }
 }

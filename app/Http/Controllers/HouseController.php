@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\House;
+use App\Models\HouseResident;
 use App\Models\Resident;
 use App\Utils\CommonResponse;
 use Illuminate\Http\Response;
@@ -15,7 +16,7 @@ class HouseController
      */
     public function index()
     {
-        $houses = House::paginate(8);
+        $houses = House::with('currentResident.resident')->paginate(8);
         return CommonResponse::commonResponse(
             Response::HTTP_OK,
             'Success',
@@ -42,8 +43,8 @@ class HouseController
         }
 
         $house = [
-            'house_code' => request()->house_code,
-            'is_occupied' => request()->is_occupied
+            'house_code' => request('house_code'),
+            'is_occupied' => request('is_occupied')
         ];
 
         return CommonResponse::commonResponse(
@@ -63,7 +64,7 @@ class HouseController
             return CommonResponse::commonResponse(
                 Response::HTTP_NOT_FOUND,
                 'Error',
-                ['message' => 'House not found']
+                ['error' => 'House not found']
             );
         }
         return CommonResponse::commonResponse(
@@ -79,8 +80,8 @@ class HouseController
     public function update(string $id)
     {
         $validated = Validator::make(request()->all(), [
-            'house_code' => 'required|string',
-            'is_occupied' => 'required|boolean',
+            'house_code' => 'string',
+            'is_occupied' => 'boolean',
         ]);
 
         if ($validated->fails()) {
@@ -96,14 +97,16 @@ class HouseController
             return CommonResponse::commonResponse(
                 Response::HTTP_NOT_FOUND,
                 'Error',
-                ['message' => 'House not found']
+                ['error' => 'House not found']
             );
         }
 
-        $house->subs_id = request()->subs_id;
-        $house->is_occupied = request()->is_occupied;
-        $house->save();
+        $updatedHouse = [
+            'house_code' => request('house_code'),
+            'is_occupied' => request('is_occupied')
+        ];
 
+        $house->update($updatedHouse);
         return CommonResponse::commonResponse(
             Response::HTTP_OK,
             'Success',
@@ -115,7 +118,7 @@ class HouseController
     {
         $validated = Validator::make(request()->all(), [
             'resident_id' => 'required|string',
-            'house_id' => 'required|string',
+            'start_date' => 'required|date',
         ]);
 
         if ($validated->fails()) {
@@ -133,7 +136,7 @@ class HouseController
             return CommonResponse::commonResponse(
                 Response::HTTP_NOT_FOUND,
                 'Error',
-                ['message' => 'Resident not found']
+                ['error' => 'Resident not found']
             );
         }
 
@@ -144,14 +147,19 @@ class HouseController
             return CommonResponse::commonResponse(
                 Response::HTTP_NOT_FOUND,
                 'Error',
-                ['message' => 'House not found']
+                ['error' => 'House not found']
             );
         }
 
-        $resident->house_id = $house->id;
-        $house->is_occupied = true;
-        $resident->save();
-        $house->save();
+        if ($house->is_occupied == false) {
+            $house->is_occupied = true;
+            $house->save();
+        }
+
+        $house->houseResidents()->create([
+            'resident_id' => request('resident_id'),
+            'start_date' => request('start_date')
+        ]);
 
         $response = [
             'newResident' => $resident,
@@ -164,12 +172,10 @@ class HouseController
         );
     }
 
-    public function updateResident()
+    public function deleteResident(string $id)
     {
         $validated = Validator::make(request()->all(), [
-            'old_resident_id' => 'required|string',
-            'new_resident_id' => 'required|string',
-            'house_id' => 'required|string',
+            'resident_id' => 'required|string',
         ]);
 
         if ($validated->fails()) {
@@ -180,6 +186,37 @@ class HouseController
             );
         }
 
+        $residentId = request('resident_id');
+
+        $resident = Resident::find($residentId);
+        if ($resident == null) {
+            return CommonResponse::commonResponse(
+                Response::HTTP_NOT_FOUND,
+                'Error',
+                ['error' => 'Resident not found']
+            );
+        }
+
+        $houseResident = HouseResident::where('house_id', $id)
+            ->where('resident_id', $residentId)
+            ->whereNull('end_date')
+            ->first();
         
+        if ($houseResident == null) {
+            return CommonResponse::commonResponse(
+                Response::HTTP_NOT_FOUND,
+                'Error',
+                ['error' => 'House resident not found']
+            );
+        }
+
+        $houseResident->end_date = now();
+        $houseResident->save();
+
+        return CommonResponse::commonResponse(
+            Response::HTTP_OK,
+            'Success',
+            ['data' => null]
+        );
     }
 }
