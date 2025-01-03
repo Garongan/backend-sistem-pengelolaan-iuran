@@ -15,6 +15,7 @@ class Resident extends Model
         'fullname',
         'indentity_card_url',
         'is_permanent_resident',
+        'phone_number',
         'is_married'
     ];
 

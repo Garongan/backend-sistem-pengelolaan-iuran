@@ -11,7 +11,7 @@ class UpdateResidentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,13 @@ class UpdateResidentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'data' => [
+                'fullname' => ['required', 'string'],
+                'is_permanent_resident' => ['required', 'boolean'],
+                'phone_number' => ['required', 'min:10'],
+                'is_married' => ['required', 'boolean']
+            ],
+            'identity_card_image' => ['required', 'image:jpg,png|max:2048'],
         ];
     }
 }
