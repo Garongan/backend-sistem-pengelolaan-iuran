@@ -49,7 +49,7 @@ Route::middleware('auth:api')->group(function () {
     });
 
     // payments
-    Route::prefix('payments')->group(function(){
+    Route::prefix('payments')->group(function () {
         Route::get('', [PaymentController::class, 'index']);
         Route::post('', [PaymentController::class, 'store']);
         Route::get('{id}', [PaymentController::class, 'show']);
@@ -58,7 +58,7 @@ Route::middleware('auth:api')->group(function () {
     });
 
     // expenses
-    Route::prefix('expenses')->group(function(){
+    Route::prefix('expenses')->group(function () {
         Route::get('', [ExpenseController::class, 'index']);
         Route::post('', [ExpenseController::class, 'store']);
         Route::get('{id}', [ExpenseController::class, 'show']);
@@ -67,9 +67,11 @@ Route::middleware('auth:api')->group(function () {
     });
 
     // reports
-    Route::prefix('reports')->group(function(){
+    Route::prefix('reports')->group(function () {
         Route::get('monthly', [ReportController::class, 'monthlySummary']);
         Route::get('yearly', [ReportController::class, 'yearlySummary']);
+        Route::get('download/monthly', [ReportController::class, 'downloadMonthlySummary']);
+        Route::get('download/yearly', [ReportController::class, 'downloadYearlySummary']);
     });
 
     // images

@@ -1,3 +1,6 @@
+# ERD
+![erd](erd.png)
+
 # How to run and setup development
 - open git bash terminal and direct to your desired folder
 - clone this project
