@@ -30,7 +30,9 @@ class AuthController
             return CommonResponse::commonResponse(Response::HTTP_UNAUTHORIZED, 'Error', ['message' => 'Unauthorized']);
         }
 
-        return $this->respondWithToken(Response::HTTP_OK, $token);
+        $user = Auth::user();
+
+        return $this->respondWithToken(Response::HTTP_OK, $token, $user);
     }
 
     public function logout()
@@ -39,12 +41,13 @@ class AuthController
         return CommonResponse::commonResponse(Response::HTTP_OK, 'Success', ['message' => 'Logout successfull']);
     }
 
-    protected function respondWithToken($statusCode, $token)
+    protected function respondWithToken($statusCode, $token, $user)
     {
         return CommonResponse::commonResponse($statusCode, 'Success', [
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => Auth::factory()->getTTL() * 60
+            'data' => [
+                'token' => $token,
+                'user' => $user
+            ]
         ]);
     }
 }

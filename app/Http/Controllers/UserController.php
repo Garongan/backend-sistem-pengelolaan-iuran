@@ -30,6 +30,7 @@ class UserController
                 ['error' => 'User not found']
             );
         }
+        
         return CommonResponse::commonResponse(
             Response::HTTP_OK,
             'Success',
