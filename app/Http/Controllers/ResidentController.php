@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\House;
 use App\Models\Resident;
 use App\Utils\CommonResponse;
 use Illuminate\Http\Response;
-use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ResidentController
@@ -17,6 +16,9 @@ class ResidentController
     public function index()
     {
         $residents = Resident::paginate(8);
+        foreach ($residents as $resident) {
+            $resident->indentity_card_url = env('APP_URL') . Storage::url($resident->indentity_card_url);
+        }
         return CommonResponse::commonResponse(
             Response::HTTP_OK,
             'Success',
@@ -53,7 +55,7 @@ class ResidentController
             'indentity_card_url' => $identityCardImageUrl,
             'is_permanent_resident' => $data->is_permanent_resident,
             'phone_number' => $data->phone_number,
-            'is_married' => $data->is_married
+            'is_married' => $data->is_married,
         ];
 
         $response = Resident::create($resident);
@@ -70,6 +72,7 @@ class ResidentController
     public function show(string $id)
     {
         $resident = Resident::find($id);
+        $resident->indentity_card_url = env('APP_URL') . Storage::url($resident->indentity_card_url);
         if ($resident == null) {
             return CommonResponse::commonResponse(
                 Response::HTTP_NOT_FOUND,
@@ -145,8 +148,9 @@ class ResidentController
                 ['error' => 'Resident not found']
             );
         }
-
+        
         $resident->delete();
+        unlink(storage_path('app/public/' . $resident->indentity_card_url));
 
         return CommonResponse::commonResponse(
             Response::HTTP_OK,

@@ -12,6 +12,7 @@ git clone https://github.com/Garongan/backend-sistem-pengelolaan-iuran.git
 cp .env.example .env
 php artisan key:generate
 php artisan jwt:secret
+php artisan storage:link
 ```
 - create mysql database with name sipi_db
 - change DB_USERNAME and DB_PASSWORD with your mysql username and password

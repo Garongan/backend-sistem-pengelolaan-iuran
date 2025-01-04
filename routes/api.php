@@ -73,7 +73,4 @@ Route::middleware('auth:api')->group(function () {
         Route::get('download/monthly', [ReportController::class, 'downloadMonthlySummary']);
         Route::get('download/yearly', [ReportController::class, 'downloadYearlySummary']);
     });
-
-    // images
-    Route::get('images', [ImageController::class, 'show']);
 });
