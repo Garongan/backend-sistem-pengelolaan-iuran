@@ -118,19 +118,22 @@ class ResidentController
             );
         }
 
-        $identityCardImageUrl = request()->file('identity_card_image')->store('identity_cards', 'public');
         $data = json_decode(request('data'));
-
+        
         $updatedResident = [
             'fullname' => $data->fullname,
-            'indentity_card_url' => $identityCardImageUrl,
             'is_permanent_resident' => $data->is_permanent_resident,
             'phone_number' => $data->phone_number,
             'is_married' => $data->is_married
         ];
+        
+        if (request('identity_card_image') != null) {
+            $identityCardImageUrl = request()->file('identity_card_image')->store('identity_cards', 'public');
+            $updatedResident['indentity_card_url'] = $identityCardImageUrl;
+            unlink(storage_path('app/public/' . $resident->indentity_card_url));
+        }
 
         $resident->update($updatedResident);
-        unlink(storage_path('app/public/' . $resident->indentity_card_url));
         return CommonResponse::commonResponse(
             200,
             'Updated',
