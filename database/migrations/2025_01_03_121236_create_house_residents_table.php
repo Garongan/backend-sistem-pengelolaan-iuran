@@ -15,8 +15,8 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('house_id')->constrained();
             $table->foreignUuid('resident_id')->constrained();
-            $table->dateTime('start_date');
-            $table->dateTime('end_date')->nullable();
+            $table->timestamp('start_date');
+            $table->timestamp('end_date')->nullable();
             $table->timestamps();
         });
     }

@@ -6,6 +6,7 @@ use App\Models\House;
 use App\Models\HouseResident;
 use App\Models\Resident;
 use App\Utils\CommonResponse;
+use Carbon\Carbon;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 
@@ -54,11 +55,21 @@ class HouseController
             'is_occupied' => request('is_occupied')
         ];
 
-        return CommonResponse::commonResponse(
-            201,
-            'Created',
-            ['data' => House::create($house)]
-        );
+        try {
+            $response = House::create($house);
+            return CommonResponse::commonResponse(
+                Response::HTTP_CREATED,
+                'Created',
+                ['data' => House::create($response)]
+            );
+        } catch (\Throwable $th) {
+            return CommonResponse::commonResponse(
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                'Error',
+                ['data' => $th->errorInfo[2]]
+            );
+        }
+
     }
 
     /**
@@ -121,7 +132,7 @@ class HouseController
         );
     }
 
-    public function addResident()
+    public function addResident(string $houseId)
     {
         $validated = Validator::make(request()->all(), [
             'resident_id' => 'required|string',
@@ -147,8 +158,6 @@ class HouseController
             );
         }
 
-        $houseId = request('house_id');
-
         $house = House::find($houseId);
         if ($house == null) {
             return CommonResponse::commonResponse(
@@ -163,9 +172,11 @@ class HouseController
             $house->save();
         }
 
+        $parsedDate = Carbon::parse(request('start_date'));
+
         $house->houseResidents()->create([
             'resident_id' => request('resident_id'),
-            'start_date' => request('start_date')
+            'start_date' => $parsedDate
         ]);
 
         $response = [

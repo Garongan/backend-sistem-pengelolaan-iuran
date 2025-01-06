@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('description');
             $table->decimal('amount');
-            $table->dateTime('date');
+            $table->timestamp('date');
             $table->timestamps();
         });
     }

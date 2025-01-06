@@ -5,6 +5,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\HouseController;
+use App\Http\Controllers\HouseResidentController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ResidentController;
@@ -43,8 +44,8 @@ Route::middleware('auth:api')->group(function () {
         Route::post('', [HouseController::class, 'store']);
         Route::get('{id}', [HouseController::class, 'show']);
         Route::put('{id}', [HouseController::class, 'update']);
-        Route::post('add-resident', [HouseController::class, 'addResident']);
-        Route::delete('delete-resident/{id}', [HouseController::class, 'deleteResident']);
+        Route::post('add-resident/{id}', [HouseController::class, 'addResident']);
+        Route::patch('delete-resident/{id}', [HouseController::class, 'deleteResident']);
     });
 
     // payments

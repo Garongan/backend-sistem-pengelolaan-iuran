@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignUuid('resident_id')->constrained();
             $table->enum('payment_type', ['sanitation', 'security']);
             $table->decimal('amount');
-            $table->dateTime('period');
+            $table->timestamp('period');
             $table->boolean('is_paid_off');
             $table->timestamps();
         });

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('houses', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('house_code');
+            $table->string('house_code')->unique();
             $table->boolean('is_occupied');
             $table->timestamps();
         });
