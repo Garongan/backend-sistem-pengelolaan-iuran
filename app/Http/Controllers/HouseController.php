@@ -16,7 +16,14 @@ class HouseController
      */
     public function index()
     {
-        $houses = House::with('currentResident.resident')->paginate(8);
+        $houseCode = request()->query('houseCode');
+        $size = request()->query('size', 8);
+        $houses = [];
+        if ($houseCode != null) {
+            $houses = House::with('currentResident.resident')->where('house_code', 'like', '%' . $houseCode . '%')->paginate($size);
+        } else {
+            $houses = House::with('currentResident.resident')->paginate($size);
+        }
         return CommonResponse::commonResponse(
             Response::HTTP_OK,
             'Success',
@@ -201,7 +208,7 @@ class HouseController
             ->where('resident_id', $residentId)
             ->whereNull('end_date')
             ->first();
-        
+
         if ($houseResident == null) {
             return CommonResponse::commonResponse(
                 Response::HTTP_NOT_FOUND,

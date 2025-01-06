@@ -15,7 +15,16 @@ class ResidentController
      */
     public function index()
     {
-        $residents = Resident::paginate(8);
+        $name = request()->query('name');
+        $size = request()->query('size', 8);
+        $residents = [];
+
+        if ($name != null) {
+            $residents = Resident::where('fullname', 'like', '%' . $name . '%')->paginate($size);
+        } else {
+            $residents = Resident::paginate($size);
+        }
+
         foreach ($residents as $resident) {
             $resident->indentity_card_url = env('APP_URL') . Storage::url($resident->indentity_card_url);
         }
@@ -119,14 +128,14 @@ class ResidentController
         }
 
         $data = json_decode(request('data'));
-        
+
         $updatedResident = [
             'fullname' => $data->fullname,
             'is_permanent_resident' => $data->is_permanent_resident,
             'phone_number' => $data->phone_number,
             'is_married' => $data->is_married
         ];
-        
+
         if (request('identity_card_image') != null) {
             $identityCardImageUrl = request()->file('identity_card_image')->store('identity_cards', 'public');
             $updatedResident['indentity_card_url'] = $identityCardImageUrl;
@@ -151,7 +160,7 @@ class ResidentController
                 ['error' => 'Resident not found']
             );
         }
-        
+
         $resident->delete();
         unlink(storage_path('app/public/' . $resident->indentity_card_url));
 
