@@ -10,6 +10,7 @@ git clone https://github.com/Garongan/backend-sistem-pengelolaan-iuran.git
 - setup environment variable
 ```bash
 cp .env.example .env
+composer install
 php artisan key:generate
 php artisan jwt:secret
 php artisan storage:link
