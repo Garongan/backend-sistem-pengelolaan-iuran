@@ -25,3 +25,6 @@ php artisan migrate:fresh --seed
 php artisan serve
 ```
 - follow the instructions from this repo
+
+# Note
+- dont change the admin fullname, email, and password
