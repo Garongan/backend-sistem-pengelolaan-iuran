@@ -12,18 +12,29 @@ class ReportController
 {
     private function getMonthlySummary($month, $year)
     {
+        $incomes = Payment::with('resident')
+            ->whereYear('period', $year)
+            ->whereMonth('period', $month)
+            ->get();
+
         $income = Payment::whereYear('period', $year)
             ->whereMonth('period', $month)
             ->sum('amount');
+
+        $spendings = Expense::whereYear('date', $year)
+            ->whereMonth('date', $month)
+            ->get();
 
         $spending = Expense::whereYear('date', $year)
             ->whereMonth('date', $month)
             ->sum('amount');
 
         return [
-            'income' => $income,
-            'spending' => $spending,
-            'balance' => $income - $spending
+            'incomes' => $incomes,
+            'spendings' => $spendings,
+            'income' => strval($income),
+            'spending' => strval($spending),
+            'balance' => strval($income - $spending)
         ];
     }
 
@@ -35,10 +46,13 @@ class ReportController
         $data = $this->getMonthlySummary($month, $year);
 
         $response = [
+            'incomes' => $data['incomes'],
+            'spendings' => $data['spendings'],
             'income' => $data['income'],
             'spending' => $data['spending'],
             'balance' => $data['balance']
         ];
+
         return CommonResponse::commonResponse(
             Response::HTTP_OK,
             'Success',
@@ -56,30 +70,34 @@ class ReportController
         $pdf = Pdf::loadView('monthlySummaryPdf', [
             'month' => $month,
             'year' => $year,
+            'incomes' => $data['incomes'],
+            'spendings' => $data['spendings'],
             'income' => $data['income'],
             'spending' => $data['spending'],
             'balance' => $data['balance']
         ]);
-        return $pdf->download('laporan bulanan - ' . $month . ' - ' . $year . '.pdf');
+
+        return $pdf->download('laporan bulanan-' . date('F', mktime(0, 0, 0, $month, 1)) . '-' . $year . '.pdf');
     }
 
-    private function getYearlySummary($year){
+    private function getYearlySummary($year)
+    {
         $data = [];
 
         for ($month = 1; $month < 12; $month++) {
             $income = Payment::whereYear('period', $year)
-            ->whereMonth('period', $month)
+                ->whereMonth('period', $month)
                 ->sum('amount');
 
             $spending = Expense::whereYear('date', $year)
-            ->whereMonth('date', $month)
+                ->whereMonth('date', $month)
                 ->sum('amount');
 
             $data[] = [
-                'month' => $month,
-                'income' => $income,
-                'spending' => $spending,
-                'balance' => $income - $spending
+                'month' => strval($month),
+                'income' => strval($income),
+                'spending' => strval($spending),
+                'balance' => strval($income - $spending)
             ];
         }
 
@@ -98,18 +116,4 @@ class ReportController
             ['data' => $data]
         );
     }
-
-    public function downloadYearlySummary()
-    {
-        $year = request()->query('year', now()->year - 1);
-
-        $data = $this->getYearlySummary($year);
-
-        $pdf = Pdf::loadView('yearlySummaryPdf', [
-            'year' => $year,
-            'data' => $data
-        ]);
-        return $pdf->download('laporan tahunan - ' . $year . '.pdf');
-    }
-
 }

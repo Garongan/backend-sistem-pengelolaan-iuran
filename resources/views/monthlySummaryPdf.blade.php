@@ -60,6 +60,46 @@
             <td>Rp {{ number_format($balance, 0, ',', '.') }}</td>
         </tr>
     </table>
+
+    <h1 class="title">Detail Laporan Pemasukan Bulanan - {{ $month }}/{{ $year }}</h1>
+    <table>
+        <tr>
+            <th>No.</th>
+            <th>Nama Pembayar</th>
+            <th>Tanggal</th>
+            <th>Tipe Pemasukan</th>
+            <th>Jumlah</th>
+            <th>Status</th>
+        </tr>
+        @foreach ($incomes as $index => $item)
+        <tr>
+            <td>{{ $index }}</td>
+            <td>{{ $item['resident']->fullname }}</td>
+            <td>{{ $item['period'] }}</td>
+            <td>{{ strtoupper($item['payment_type'] == 'security' ? 'satpam' : 'kebersihan') }}</td>
+            <td>Rp {{ number_format($item['amount'], 0, ',', '.') }}</td>
+            <td>{{ $item['is_paid_off'] ? 'LUNAS' : 'BELUM LUNAS'}}</td>
+        </tr>
+        @endforeach
+    </table>
+
+    <h1 class="title">Detail Laporan Pengeluaran Bulanan - {{ $month }}/{{ $year }}</h1>
+    <table>
+        <tr>
+            <th>No.</th>
+            <th>Deskripsi</th>
+            <th>Tanggal</th>
+            <th>Jumlah</th>
+        </tr>
+        @foreach ($spendings as $index => $item)
+        <tr>
+            <td>{{ $index }}</td>
+            <td>{{ $item['description'] }}</td>
+            <td>{{ $item['date'] }}</td>
+            <td>Rp {{ number_format($item['amount'], 0, ',', '.') }}</td>
+        </tr>
+        @endforeach
+    </table>
 </body>
 
 </html>

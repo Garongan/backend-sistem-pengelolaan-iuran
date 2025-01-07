@@ -74,7 +74,7 @@ class PaymentController
             'resident_id' => request('resident_id'),
             'payment_type' => request('payment_type'),
             'amount' => request('amount'),
-            'period' => Carbon::parse(request('period')),
+            'period' => Carbon::parse(request('period'))->setTimezone(env('APP_TIMEZONE'))->toIso8601String(),
             'is_paid_off' => request('is_paid_off')
         ];
 

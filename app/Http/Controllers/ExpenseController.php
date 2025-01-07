@@ -70,7 +70,7 @@ class ExpenseController
         $expense = [
             'description' => request('description'),
             'amount' => request('amount'),
-            'date' => Carbon::parse(request('date')),
+            'date' => Carbon::parse(request('date'))->setTimezone(env('APP_TIMEZONE'))->toIso8601String(),
         ];
 
         $response = Expense::create($expense);

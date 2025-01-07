@@ -69,7 +69,6 @@ class HouseController
                 ['data' => $th->errorInfo[2]]
             );
         }
-
     }
 
     /**
@@ -172,7 +171,7 @@ class HouseController
             $house->save();
         }
 
-        $parsedDate = Carbon::parse(request('start_date'));
+        $parsedDate = Carbon::parse(request('start_date'))->setTimezone(env('APP_TIMEZONE'))->toIso8601String();
 
         $house->houseResidents()->create([
             'resident_id' => request('resident_id'),

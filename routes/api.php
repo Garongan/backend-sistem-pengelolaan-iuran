@@ -66,6 +66,5 @@ Route::middleware('auth:api')->group(function () {
         Route::get('monthly', [ReportController::class, 'monthlySummary']);
         Route::get('yearly', [ReportController::class, 'yearlySummary']);
         Route::get('download/monthly', [ReportController::class, 'downloadMonthlySummary']);
-        Route::get('download/yearly', [ReportController::class, 'downloadYearlySummary']);
     });
 });
