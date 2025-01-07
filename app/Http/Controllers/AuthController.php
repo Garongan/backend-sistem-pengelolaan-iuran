@@ -27,7 +27,7 @@ class AuthController
         $credentials = request(['email', 'password']);
 
         if (! $token = Auth::attempt($credentials)) {
-            return CommonResponse::commonResponse(Response::HTTP_UNAUTHORIZED, 'Error', ['message' => 'Unauthorized']);
+            return CommonResponse::commonResponse(Response::HTTP_BAD_REQUEST, 'Error', ['message' => 'Wrond username and password']);
         }
 
         $user = Auth::user();

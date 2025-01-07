@@ -5,7 +5,6 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\HouseController;
-use App\Http\Controllers\HouseResidentController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ResidentController;
@@ -53,8 +52,6 @@ Route::middleware('auth:api')->group(function () {
         Route::get('', [PaymentController::class, 'index']);
         Route::post('', [PaymentController::class, 'store']);
         Route::get('{id}', [PaymentController::class, 'show']);
-        Route::put('{id}', [PaymentController::class, 'update']);
-        Route::delete('{id}', [PaymentController::class, 'destroy']);
     });
 
     // expenses
@@ -62,8 +59,6 @@ Route::middleware('auth:api')->group(function () {
         Route::get('', [ExpenseController::class, 'index']);
         Route::post('', [ExpenseController::class, 'store']);
         Route::get('{id}', [ExpenseController::class, 'show']);
-        Route::put('{id}', [ExpenseController::class, 'update']);
-        Route::delete('{id}', [ExpenseController::class, 'destroy']);
     });
 
     // reports

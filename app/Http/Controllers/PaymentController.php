@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Payment;
 use App\Utils\CommonResponse;
+use Carbon\Carbon;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 
@@ -14,7 +15,33 @@ class PaymentController
      */
     public function index()
     {
-        $payments = Payment::with('resident')->paginate(8);
+        $validated = Validator::make(request()->query(), [
+            'year' => 'numeric',
+            'month' => 'numeric|min:1|max:12'
+        ]);
+
+        if ($validated->fails()) {
+            return CommonResponse::commonResponse(
+                Response::HTTP_BAD_REQUEST,
+                'Error',
+                ['error' => $validated->errors()]
+            );
+        }
+
+        $year = request()->query('year');
+        $month = request()->query('month');
+        $size = request()->query('size', 8);
+
+        $payments = [];
+        if ($year == null && $month == null) {
+            $payments = Payment::with('resident')->paginate($size);
+        } else {
+            $payments = Payment::with('resident')
+                ->whereYear('period', $year)
+                ->whereMonth('period', $month)
+                ->paginate($size);
+        }
+
         return CommonResponse::commonResponse(
             Response::HTTP_OK,
             'Success',
@@ -47,7 +74,7 @@ class PaymentController
             'resident_id' => request('resident_id'),
             'payment_type' => request('payment_type'),
             'amount' => request('amount'),
-            'period' => request('period'),
+            'period' => Carbon::parse(request('period')),
             'is_paid_off' => request('is_paid_off')
         ];
 
@@ -71,72 +98,5 @@ class PaymentController
                 ['error' => 'Payment not found']
             );
         }
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(string $id)
-    {
-        $payment = Payment::find($id);
-        if ($payment == null) {
-            return CommonResponse::commonResponse(
-                Response::HTTP_NOT_FOUND,
-                'Error',
-                ['error' => 'Payment not found']
-            );
-        }
-
-        $validated = Validator::make(request()->all(), [
-            'payment_type' => 'in:sanitation,security',
-            'amount' => 'numeric',
-            'period' => 'date',
-            'is_paid_off' => 'boolean'
-        ]);
-
-        if ($validated->fails()) {
-            return CommonResponse::commonResponse(
-                Response::HTTP_BAD_REQUEST,
-                'Error',
-                ['error' => $validated->errors()]
-            );
-        }
-
-        $updatedPayment = [
-            'resident_id' => request('resident_id'),
-            'payment_type' => request('payment_type'),
-            'amount' => request('amount'),
-            'period' => request('period'),
-            'is_paid_off' => request('is_paid_off')
-        ];
-
-        $payment->update($updatedPayment);
-        return CommonResponse::commonResponse(
-            Response::HTTP_OK,
-            'Success',
-            ['data' => $payment]
-        );
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        $payment = Payment::find($id);
-        if ($payment == null) {
-            return CommonResponse::commonResponse(
-                Response::HTTP_NOT_FOUND,
-                'Error',
-                ['error' => 'Payment not found']
-            );
-        }
-
-        $payment->delete();
-        return CommonResponse::commonResponse(
-            Response::HTTP_OK,
-            'Success',
-            ['data' => null]
-        );
     }
 }
