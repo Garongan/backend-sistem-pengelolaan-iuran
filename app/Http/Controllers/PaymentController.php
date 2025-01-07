@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Payment;
+use App\Models\Resident;
 use App\Utils\CommonResponse;
 use Carbon\Carbon;
 use Illuminate\Http\Response;
@@ -70,8 +71,19 @@ class PaymentController
             );
         }
 
+        $resident = Resident::find(request('resident_id'));
+
+        if ($resident == null) {
+            return CommonResponse::commonResponse(
+                Response::HTTP_BAD_REQUEST,
+                'Error',
+                ['error' => 'Resident not found']
+            );
+        }
+
+
         $payment = [
-            'resident_id' => request('resident_id'),
+            'resident_id' => $resident->id,
             'payment_type' => request('payment_type'),
             'amount' => request('amount'),
             'period' => Carbon::parse(request('period'))->setTimezone(env('APP_TIMEZONE'))->toIso8601String(),
