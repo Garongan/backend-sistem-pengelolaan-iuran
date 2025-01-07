@@ -84,7 +84,7 @@ class ReportController
     {
         $data = [];
 
-        for ($month = 1; $month < 12; $month++) {
+        for ($month = 1; $month <= 12; $month++) {
             $income = Payment::whereYear('period', $year)
                 ->whereMonth('period', $month)
                 ->sum('amount');
