@@ -21,9 +21,10 @@ class HouseController
         $size = request()->query('size', 8);
         $houses = [];
         if ($houseCode != null) {
-            $houses = House::with('currentResident.resident')->where('house_code', 'like', '%' . $houseCode . '%')->paginate($size);
+            $houses = House::with('currentResident.resident:id,fullname')
+                ->where('house_code', 'like', '%' . $houseCode . '%')->paginate($size);
         } else {
-            $houses = House::with('currentResident.resident')->paginate($size);
+            $houses = House::with('currentResident.resident:id,fullname')->paginate($size);
         }
         return CommonResponse::commonResponse(
             Response::HTTP_OK,

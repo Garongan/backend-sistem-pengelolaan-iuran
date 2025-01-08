@@ -35,9 +35,21 @@ class PaymentController
 
         $payments = [];
         if ($year == null && $month == null) {
-            $payments = Payment::with('resident')->paginate($size);
+            $payments = Payment::select(
+                'amount',
+                'payment_type',
+                'period',
+                'is_paid_off',
+                'resident_id'
+            )->with('resident:id,fullname')->paginate($size);
         } else {
-            $payments = Payment::with('resident')
+            $payments = Payment::select(
+                'amount',
+                'payment_type',
+                'period',
+                'is_paid_off',
+                'resident_id'
+            )->with('resident:id,fullname')
                 ->whereYear('period', $year)
                 ->whereMonth('period', $month)
                 ->paginate($size);
@@ -102,7 +114,13 @@ class PaymentController
      */
     public function show(string $id)
     {
-        $payment = Payment::with('resident')->find($id);
+        $payment = Payment::select(
+            'amount',
+            'payment_type',
+            'period',
+            'is_paid_off',
+            'resident_id'
+        )->with('resident:id,fullname')->find($id);
         if ($payment == null) {
             return CommonResponse::commonResponse(
                 Response::HTTP_NOT_FOUND,

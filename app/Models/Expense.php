@@ -14,4 +14,9 @@ class Expense extends Model
         'amount',
         'date'
     ];
+
+    protected $hidden = [
+        'created_at',
+        'updated_at'
+    ];
 }

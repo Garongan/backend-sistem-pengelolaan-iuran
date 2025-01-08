@@ -27,10 +27,10 @@ class AuthController
         $credentials = request(['email', 'password']);
 
         if (! $token = Auth::attempt($credentials)) {
-            return CommonResponse::commonResponse(Response::HTTP_BAD_REQUEST, 'Error', ['message' => 'Wrond username and password']);
+            return CommonResponse::commonResponse(Response::HTTP_BAD_REQUEST, 'Error', ['message' => 'Wrong username and password']);
         }
 
-        $user = Auth::user();
+        $user = Auth::user()->select('name')->get();
 
         return $this->respondWithToken(Response::HTTP_OK, $token, $user);
     }

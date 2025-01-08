@@ -14,6 +14,11 @@ class House extends Model
         'is_occupied',
     ];
 
+    protected $hidden = [
+        'created_at',
+        'updated_at'
+    ];
+
     protected function casts(): array
     {
         return [

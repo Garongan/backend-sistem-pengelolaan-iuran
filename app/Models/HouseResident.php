@@ -16,6 +16,13 @@ class HouseResident extends Model
         'end_date',
     ];
 
+    protected $hidden = [
+        'house_id',
+        'resident_id',
+        'created_at',
+        'updated_at'
+    ];
+
     public function house()
     {
         return $this->belongsTo(House::class);

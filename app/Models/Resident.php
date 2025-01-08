@@ -17,6 +17,11 @@ class Resident extends Model
         'is_married'
     ];
 
+    protected $hidden = [
+        'created_at',
+        'updated_at'
+    ];
+
     protected function casts(): array
     {
         return [

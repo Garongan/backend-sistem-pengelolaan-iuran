@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Expense;
 use App\Models\Payment;
+use App\Models\Resident;
 use App\Utils\CommonResponse;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Response;
@@ -12,7 +13,13 @@ class ReportController
 {
     private function getMonthlySummary($month, $year)
     {
-        $incomes = Payment::with('resident')
+        $incomes = Payment::select(
+            'amount',
+            'payment_type',
+            'period',
+            'is_paid_off',
+            'resident_id'
+        )->with('resident:id,fullname')
             ->whereYear('period', $year)
             ->whereMonth('period', $month)
             ->get();
