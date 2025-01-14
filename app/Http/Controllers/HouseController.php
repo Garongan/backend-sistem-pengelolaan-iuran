@@ -7,7 +7,9 @@ use App\Models\HouseResident;
 use App\Models\Resident;
 use App\Utils\CommonResponse;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class HouseController
@@ -56,20 +58,26 @@ class HouseController
             'is_occupied' => request('is_occupied')
         ];
 
+        $statusCodeResponse = Response::HTTP_CREATED;
+        $messageResponse = 'Created';
+        $dataResponse = [];
+
         try {
-            $response = House::create($house);
-            return CommonResponse::commonResponse(
-                Response::HTTP_CREATED,
-                'Created',
-                ['data' => House::create($response)]
-            );
-        } catch (\Throwable $th) {
-            return CommonResponse::commonResponse(
-                Response::HTTP_INTERNAL_SERVER_ERROR,
-                'Error',
-                ['data' => $th->errorInfo[2]]
-            );
+            DB::beginTransaction();
+            $dataResponse = House::create($house);
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            $statusCodeResponse = Response::HTTP_INTERNAL_SERVER_ERROR;
+            $messageResponse = 'Error';
+            $dataResponse = $e->getMessage();
         }
+
+        return CommonResponse::commonResponse(
+            $statusCodeResponse,
+            $messageResponse,
+            ['data' => $dataResponse]
+        );
     }
 
     /**
